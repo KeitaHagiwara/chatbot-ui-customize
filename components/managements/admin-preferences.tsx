@@ -39,6 +39,7 @@ import { Button } from "../ui/button"
 import { Input } from "../ui/input"
 import { Label } from "../ui/label"
 // import { LimitDisplay } from "../ui/limit-display"
+import { WithTooltip } from "../ui/with-tooltip"
 import {
   Table,
   TableHead,
@@ -78,40 +79,6 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
     availableOpenRouterModels
   } = useContext(ChatbotUIContext)
 
-  const handleChange = async (userId: string, checked: boolean) => {
-    await updateUserInfo(userId, {
-      is_admin: checked
-    })
-
-    const updatedUsers = await getUsers()
-    setMembers(updatedUsers)
-
-    toast.success("Administrator privirages updated!")
-  }
-
-  const handleUserActivation = async (userId: string, isDeleted: boolean) => {
-    console.log(userId)
-    console.log(isDeleted)
-    await updateUserInfo(userId, {
-      is_deleted: !isDeleted
-    })
-
-    const updatedUsers = await getUsers()
-    setMembers(updatedUsers)
-
-    toast.success("User activity updated!")
-  }
-
-  const filteringUsersByDeleteFlg = async (checked: boolean) => {
-    setMembers(await filterUsers(searchStr, checked))
-    setActiveUserOnly(checked)
-  }
-
-  const filteringUsersByEmail = async (val: string) => {
-    setMembers(await filterUsers(val, activeUserOnly))
-    setSearchStr(val)
-  }
-
   const router = useRouter()
 
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -121,6 +88,7 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
 
   const [activeUserOnly, setActiveUserOnly] = useState(true)
   const [searchStr, setSearchStr] = useState("")
+  const [isDisplayed, setIsDisplayed] = useState(true)
 
   const [useAzureOpenai, setUseAzureOpenai] = useState(
     apikeys?.use_azure_openai
@@ -271,6 +239,40 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
     setIsOpen(false)
   }
 
+  const handleChange = async (userId: string, checked: boolean) => {
+    await updateUserInfo(userId, {
+      is_admin: checked
+    })
+
+    const updatedUsers = await getUsers()
+    setMembers(updatedUsers)
+
+    toast.success("Administrator privileges updated!")
+  }
+
+  const handleUserActivation = async (userId: string, isDeleted: boolean) => {
+    console.log(userId)
+    console.log(isDeleted)
+    await updateUserInfo(userId, {
+      is_deleted: !isDeleted
+    })
+
+    const updatedUsers = await getUsers()
+    setMembers(updatedUsers)
+
+    toast.success("User activity updated!")
+  }
+
+  const filteringUsersByDeleteFlg = async (checked: boolean) => {
+    setMembers(await filterUsers(searchStr, checked))
+    setActiveUserOnly(checked)
+  }
+
+  const filteringUsersByEmail = async (val: string) => {
+    setMembers(await filterUsers(val, activeUserOnly))
+    setSearchStr(val)
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter") {
       buttonRef.current?.click()
@@ -312,8 +314,12 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
 
           <Tabs defaultValue="keys">
             <TabsList className="mt-4 grid w-full grid-cols-2">
-              <TabsTrigger value="keys">API Keys</TabsTrigger>
-              <TabsTrigger value="users">Users</TabsTrigger>
+              <TabsTrigger value="keys" onClick={() => setIsDisplayed(true)}>
+                API Keys
+              </TabsTrigger>
+              <TabsTrigger value="users" onClick={() => setIsDisplayed(false)}>
+                Users
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent className="mt-4 space-y-4" value="keys">
@@ -614,7 +620,6 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
                 ref={inputRef}
                 className="w-full"
                 placeholder="Search Users..."
-                // value={search}
                 onChange={e => filteringUsersByEmail(e.target.value)}
               />
 
@@ -655,12 +660,29 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
                         <TableCell>{member.email}</TableCell>
                       )}
                       <TableCell>
-                        <Checkbox
-                          checked={member.is_admin}
-                          onCheckedChange={(value: boolean) =>
-                            handleChange(member.id, value)
-                          }
-                        />
+                        {member.id === profile.user_id ? (
+                          <WithTooltip
+                            display={
+                              <div>Can NOT change my own admin privileges</div>
+                            }
+                            trigger={
+                              <Checkbox
+                                checked={member.is_admin}
+                                onCheckedChange={(value: boolean) =>
+                                  handleChange(member.id, value)
+                                }
+                                disabled
+                              />
+                            }
+                          />
+                        ) : (
+                          <Checkbox
+                            checked={member.is_admin}
+                            onCheckedChange={(value: boolean) =>
+                              handleChange(member.id, value)
+                            }
+                          />
+                        )}
                       </TableCell>
                       {member.is_deleted ? (
                         <TableCell>
@@ -676,15 +698,41 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
                         </TableCell>
                       ) : (
                         <TableCell>
-                          <Button
-                            variant="ghost"
-                            style={{ background: "none" }}
-                            onClick={async () =>
-                              handleUserActivation(member.id, member.is_deleted)
-                            }
-                          >
-                            <IconTrash />
-                          </Button>
+                          {member.id === profile.user_id ? (
+                            <WithTooltip
+                              display={
+                                <div>Can NOT deactivate my own account</div>
+                              }
+                              trigger={
+                                <Button
+                                  variant="ghost"
+                                  style={{ background: "none" }}
+                                  onClick={async () =>
+                                    handleUserActivation(
+                                      member.id,
+                                      member.is_deleted
+                                    )
+                                  }
+                                  disabled
+                                >
+                                  <IconTrash />
+                                </Button>
+                              }
+                            />
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              style={{ background: "none" }}
+                              onClick={async () =>
+                                handleUserActivation(
+                                  member.id,
+                                  member.is_deleted
+                                )
+                              }
+                            >
+                              <IconTrash />
+                            </Button>
+                          )}
                         </TableCell>
                       )}
                     </TableRow>
@@ -702,17 +750,19 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
           </Tabs>
         </div>
 
-        <div className="mt-6 flex items-center">
-          <div className="ml-auto space-x-2">
-            <Button variant="ghost" onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
+        {isDisplayed ? (
+          <div className="mt-6 flex items-center">
+            <div className="ml-auto space-x-2">
+              <Button variant="ghost" onClick={() => setIsOpen(false)}>
+                Cancel
+              </Button>
 
-            <Button ref={buttonRef} onClick={handleSave}>
-              Save
-            </Button>
+              <Button ref={buttonRef} onClick={handleSave}>
+                Save
+              </Button>
+            </div>
           </div>
-        </div>
+        ) : null}
       </SheetContent>
     </Sheet>
   )
