@@ -1,0 +1,41 @@
+# 初期設定
+  - 必要なライブラリをインストールする
+    > npm install
+
+  - supabase関連のライブラリをインストールする
+    > npm install @supabase/supabase-js @supabase/supabase-auth-helpers
+
+  - 環境設定ファイルのテンプレートからローカル環境用の環境設定ファイルを生成する
+    > cp .env.local.example .env.local
+
+  - supabaseのクラウド管理ページにログインしてプロジェクトを作成する
+    https://supabase.com/
+
+  - プロジェクトの設定値とAPIキーの値を参照して、以下の値を編集する
+    > project setting > CONFIGURATION > API
+      から以下の設定値を参照可能
+    ・NEXT_PUBLIC_SUPABASE_URL(必須) -> ブラウザから取得可能
+    ・NEXT_PUBLIC_SUPABASE_ANON_KEY(必須) -> ブラウザから取得可能
+    ・SUPABASE_SERVICE_ROLE_KEY(必須) -> ブラウザから取得可能
+    ・OPENAI_API_KEY <- これはOpenAIから取得
+      -> 実際に使用するためにはOrganization IDも必要
+
+# supabaseのセットアップ(BaaSに個人プロジェクトを使う場合)
+  詳細はこちら
+  https://bou7254.com/posts/chatbot-ui-2-vercel-supabase-free-deploy
+
+  - 既にsupabaseのdockerコンテナが作成されている場合は削除する必要がある
+
+  - ローカルでsupabaseを起動する -> dockerにコンテナが作成される
+    > supabase start
+
+  - ターミナル経由でsupabaseにログインする
+    > supabase login
+
+  - ローカルとsupabaseクラウドを繋ぎこむ
+    > supabase link --project-ref <My Project ID>
+
+  - クラウド環境にpushする -> ローカルのコンテナをクラウド上にデプロイ
+    supabase startでコンテナが起動していないとpushできない
+    push時にDBのパスワードが求められる
+    > supabase db push

@@ -111,3 +111,52 @@ export const fetchOpenRouterModels = async () => {
     toast.error("Error fetching Open Router models: " + error)
   }
 }
+
+export const fetchAdminHostedModels = async (apikeys: Tables<"apikeys">) => {
+  try {
+    const providers = ["google", "anthropic", "mistral", "groq", "perplexity"]
+
+    if (apikeys.use_azure_openai) {
+      providers.push("azure")
+    } else {
+      providers.push("openai")
+    }
+
+    const response = await fetch("/api/keys")
+
+    if (!response.ok) {
+      throw new Error(`Server is not responding.`)
+    }
+
+    const data = await response.json()
+
+    let modelsToAdd: LLM[] = []
+
+    for (const provider of providers) {
+      let providerKey: keyof typeof apikeys
+
+      if (provider === "google") {
+        providerKey = "google_gemini_api_key"
+      } else if (provider === "azure") {
+        providerKey = "azure_openai_api_key"
+      } else {
+        providerKey = `${provider}_api_key` as keyof typeof apikeys
+      }
+
+      if (apikeys?.[providerKey] || data.isUsingEnvKeyMap[provider]) {
+        const models = LLM_LIST_MAP[provider]
+
+        if (Array.isArray(models)) {
+          modelsToAdd.push(...models)
+        }
+      }
+    }
+
+    return {
+      envKeyMap: data.isUsingEnvKeyMap,
+      hostedModels: modelsToAdd
+    }
+  } catch (error) {
+    console.warn("Error fetching hosted models: " + error)
+  }
+}

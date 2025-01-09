@@ -31,7 +31,7 @@ export const ChatHelp: FC<ChatHelpProps> = ({}) => {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel className="flex items-center justify-between">
+        {/* <DropdownMenuLabel className="flex items-center justify-between">
           <div className="flex space-x-2">
             <Link
               className="cursor-pointer hover:opacity-50"
@@ -66,7 +66,7 @@ export const ChatHelp: FC<ChatHelpProps> = ({}) => {
           </div>
         </DropdownMenuLabel>
 
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator /> */}
 
         <DropdownMenuItem className="flex justify-between">
           <div>Show Help</div>

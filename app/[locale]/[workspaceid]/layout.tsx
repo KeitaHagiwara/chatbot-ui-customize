@@ -2,6 +2,7 @@
 
 import { Dashboard } from "@/components/ui/dashboard"
 import { ChatbotUIContext } from "@/context/context"
+import { getUserInfoByUserId } from "@/db/users"
 import { getAssistantWorkspacesByWorkspaceId } from "@/db/assistants"
 import { getChatsByWorkspaceId } from "@/db/chats"
 import { getCollectionWorkspacesByWorkspaceId } from "@/db/collections"
@@ -61,18 +62,15 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
 
   useEffect(() => {
     ;(async () => {
-      const session = (await supabase.auth.getSession()).data.session
-
-      if (!session) {
-        return router.push("/login")
-      } else {
-        await fetchWorkspaceData(workspaceId)
-      }
+      await checkSessionAndUserDeleted(workspaceId)
     })()
   }, [])
 
   useEffect(() => {
-    ;(async () => await fetchWorkspaceData(workspaceId))()
+    ;(async () => {
+      await checkSessionAndUserDeleted(workspaceId)
+      // await fetchWorkspaceData(workspaceId)
+    })()
 
     setUserInput("")
     setChatMessages([])
@@ -87,6 +85,21 @@ export default function WorkspaceLayout({ children }: WorkspaceLayoutProps) {
     setNewMessageImages([])
     setShowFilesDisplay(false)
   }, [workspaceId])
+
+  const checkSessionAndUserDeleted = async (workspaceId: string) => {
+    const session = (await supabase.auth.getSession()).data.session
+    if (!session) {
+      // return router.push("/login")
+      return router.push("/")
+    } else {
+      const userInfo = await getUserInfoByUserId(session.user.id)
+      if (userInfo.is_deleted) {
+        return router.push("/")
+      } else {
+        await fetchWorkspaceData(workspaceId)
+      }
+    }
+  }
 
   const fetchWorkspaceData = async (workspaceId: string) => {
     setLoading(true)

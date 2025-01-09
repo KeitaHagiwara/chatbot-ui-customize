@@ -16,6 +16,15 @@ interface ChatbotUIContext {
   // PROFILE STORE
   profile: Tables<"profiles"> | null
   setProfile: Dispatch<SetStateAction<Tables<"profiles"> | null>>
+  // USER STORE
+  userInfo: Tables<"users"> | null
+  setUserInfo: Dispatch<SetStateAction<Tables<"users"> | null>>
+  members: Tables<"users">[]
+  setMembers: Dispatch<SetStateAction<Tables<"users">[]>>
+
+  // API KEYS
+  apikeys: Tables<"apikeys"> | null
+  setApiKeys: Dispatch<SetStateAction<Tables<"apikeys"> | null>>
 
   // ITEMS STORE
   assistants: Tables<"assistants">[]
@@ -142,6 +151,15 @@ export const ChatbotUIContext = createContext<ChatbotUIContext>({
   // PROFILE STORE
   profile: null,
   setProfile: () => {},
+  // USER STORE
+  userInfo: null,
+  setUserInfo: () => {},
+  members: [],
+  setMembers: () => {},
+
+  // API KEYS STORE
+  apikeys: null,
+  setApiKeys: () => {},
 
   // ITEMS STORE
   assistants: [],

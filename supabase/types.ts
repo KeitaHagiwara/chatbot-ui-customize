@@ -1048,6 +1048,96 @@ export type Database = {
         }
         Relationships: []
       }
+      users: {
+        Row: {
+          id: string
+          email: string
+          first_name?: string | null
+          last_name?: string | null
+          is_admin: boolean
+          is_deleted: boolean
+        },
+        Insert: {
+          id: string
+          email: string
+          first_name?: string | null
+          last_name?: string | null
+          is_admin?: boolean
+          is_deleted?: boolean
+        },
+        Update: {
+          id?: string
+          email?: string
+          first_name?: string | null
+          last_name?: string | null
+          is_admin?: boolean
+          is_deleted?: boolean
+        },
+        Relationships: []
+      }
+      apikeys: {
+        Row: {
+          anthropic_api_key: string | null
+          azure_openai_35_turbo_id: string | null
+          azure_openai_45_turbo_id: string | null
+          azure_openai_45_vision_id: string | null
+          azure_openai_api_key: string | null
+          azure_openai_embeddings_id: string | null
+          azure_openai_endpoint: string | null
+          created_at: string
+          google_gemini_api_key: string | null
+          groq_api_key: string | null
+          id: string
+          mistral_api_key: string | null
+          openai_api_key: string | null
+          openai_organization_id: string | null
+          openrouter_api_key: string | null
+          perplexity_api_key: string | null
+          updated_at: string | null
+          use_azure_openai?: boolean
+        }
+        Insert: {
+          anthropic_api_key?: string | null
+          azure_openai_35_turbo_id?: string | null
+          azure_openai_45_turbo_id?: string | null
+          azure_openai_45_vision_id?: string | null
+          azure_openai_api_key?: string | null
+          azure_openai_embeddings_id?: string | null
+          azure_openai_endpoint?: string | null
+          created_at?: string
+          google_gemini_api_key?: string | null
+          groq_api_key?: string | null
+          id?: string
+          mistral_api_key?: string | null
+          openai_api_key?: string | null
+          openai_organization_id?: string | null
+          openrouter_api_key?: string | null
+          perplexity_api_key?: string | null
+          updated_at?: string | null
+          use_azure_openai?: boolean
+        }
+        Update: {
+          anthropic_api_key?: string | null
+          azure_openai_35_turbo_id?: string | null
+          azure_openai_45_turbo_id?: string | null
+          azure_openai_45_vision_id?: string | null
+          azure_openai_api_key?: string | null
+          azure_openai_embeddings_id?: string | null
+          azure_openai_endpoint?: string | null
+          created_at?: string
+          google_gemini_api_key?: string | null
+          groq_api_key?: string | null
+          id?: string
+          mistral_api_key?: string | null
+          openai_api_key?: string | null
+          openai_organization_id?: string | null
+          openrouter_api_key?: string | null
+          perplexity_api_key?: string | null
+          updated_at?: string | null
+          use_azure_openai?: boolean
+        }
+        Relationships: []
+      }
       prompt_workspaces: {
         Row: {
           created_at: string

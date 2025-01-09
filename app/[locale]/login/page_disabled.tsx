@@ -34,6 +34,21 @@ export default async function Login({
   const session = (await supabase.auth.getSession()).data.session
 
   if (session) {
+    const { data: userInfo, error: userError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", session.user.id)
+      .single()
+
+    if (!userInfo) {
+      throw new Error(userError?.message)
+    }
+
+    // ユーザーが論理削除されていた場合はログインページへリダイレクトする
+    if (userInfo.is_deleted) {
+      await supabase.auth.signOut()
+    }
+
     const { data: homeWorkspace, error } = await supabase
       .from("workspaces")
       .select("*")
@@ -63,6 +78,21 @@ export default async function Login({
 
     if (error) {
       return redirect(`/login?message=${error.message}`)
+    }
+
+    const { data: userInfo, error: userError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", data.user.id)
+      .single()
+
+    if (!userInfo) {
+      throw new Error(userError?.message)
+    }
+
+    // ユーザーが論理削除されていた場合はログインページへリダイレクトする
+    if (userInfo.is_deleted) {
+      await supabase.auth.signOut()
     }
 
     const { data: homeWorkspace, error: homeWorkspaceError } = await supabase

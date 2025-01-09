@@ -9,7 +9,7 @@ import {
   IconRobotFace,
   IconSparkles
 } from "@tabler/icons-react"
-import { FC } from "react"
+import { FC, useState } from "react"
 import { TabsList } from "../ui/tabs"
 import { WithTooltip } from "../ui/with-tooltip"
 import { ProfileSettings } from "../utility/profile-settings"
@@ -45,11 +45,11 @@ export const SidebarSwitcher: FC<SidebarSwitcherProps> = ({
           onContentTypeChange={onContentTypeChange}
         />
 
-        <SidebarSwitchItem
+        {/* <SidebarSwitchItem
           icon={<IconSparkles size={SIDEBAR_ICON_SIZE} />}
           contentType="models"
           onContentTypeChange={onContentTypeChange}
-        />
+        /> */}
 
         <SidebarSwitchItem
           icon={<IconFile size={SIDEBAR_ICON_SIZE} />}

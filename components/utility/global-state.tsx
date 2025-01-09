@@ -3,12 +3,15 @@
 "use client"
 
 import { ChatbotUIContext } from "@/context/context"
+import { getApiKeys } from "@/db/apikeys"
 import { getProfileByUserId } from "@/db/profile"
+import { getUserInfoByUserId } from "@/db/users"
 import { getWorkspaceImageFromStorage } from "@/db/storage/workspace-images"
 import { getWorkspacesByUserId } from "@/db/workspaces"
 import { convertBlobToBase64 } from "@/lib/blob-to-b64"
 import {
   fetchHostedModels,
+  fetchAdminHostedModels,
   fetchOllamaModels,
   fetchOpenRouterModels
 } from "@/lib/models/fetch-models"
@@ -37,6 +40,11 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
 
   // PROFILE STORE
   const [profile, setProfile] = useState<Tables<"profiles"> | null>(null)
+  // USER STORE
+  const [userInfo, setUserInfo] = useState<Tables<"users"> | null>(null)
+  const [members, setMembers] = useState<Tables<"users">[]>([])
+  // API KEYS
+  const [apikeys, setApiKeys] = useState<Tables<"apikeys"> | null>(null)
 
   // ITEMS STORE
   const [assistants, setAssistants] = useState<Tables<"assistants">[]>([])
@@ -125,17 +133,20 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
 
   useEffect(() => {
     ;(async () => {
+      const userInfo = await fetchUserInfo()
+      if (!userInfo) return
       const profile = await fetchStartingData()
+      const apikeys = await fetchAPIKeyData()
 
-      if (profile) {
-        const hostedModelRes = await fetchHostedModels(profile)
+      if (apikeys) {
+        const hostedModelRes = await fetchAdminHostedModels(apikeys)
         if (!hostedModelRes) return
 
         setEnvKeyMap(hostedModelRes.envKeyMap)
         setAvailableHostedModels(hostedModelRes.hostedModels)
 
         if (
-          profile["openrouter_api_key"] ||
+          apikeys["openrouter_api_key"] ||
           hostedModelRes.envKeyMap["openrouter"]
         ) {
           const openRouterModels = await fetchOpenRouterModels()
@@ -149,6 +160,29 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
         if (!localModels) return
         setAvailableLocalModels(localModels)
       }
+
+      // if (profile) {
+      //   const hostedModelRes = await fetchHostedModels(profile)
+      //   if (!hostedModelRes) return
+
+      //   setEnvKeyMap(hostedModelRes.envKeyMap)
+      //   setAvailableHostedModels(hostedModelRes.hostedModels)
+
+      //   if (
+      //     profile["openrouter_api_key"] ||
+      //     hostedModelRes.envKeyMap["openrouter"]
+      //   ) {
+      //     const openRouterModels = await fetchOpenRouterModels()
+      //     if (!openRouterModels) return
+      //     setAvailableOpenRouterModels(openRouterModels)
+      //   }
+      // }
+
+      // if (process.env.NEXT_PUBLIC_OLLAMA_URL) {
+      //   const localModels = await fetchOllamaModels()
+      //   if (!localModels) return
+      //   setAvailableLocalModels(localModels)
+      // }
     })()
   }, [])
 
@@ -197,12 +231,52 @@ export const GlobalState: FC<GlobalStateProps> = ({ children }) => {
     }
   }
 
+  const fetchUserInfo = async () => {
+    const session = (await supabase.auth.getSession()).data.session
+
+    if (session) {
+      const user = session.user
+
+      const userInfo = await getUserInfoByUserId(user.id)
+      if (userInfo.is_deleted) {
+        supabase.auth.signOut()
+        return router.push("/")
+      }
+      setUserInfo(userInfo)
+
+      return userInfo
+    }
+  }
+
+  const fetchAPIKeyData = async () => {
+    const session = (await supabase.auth.getSession()).data.session
+
+    if (session) {
+      const user = session.user
+
+      const apikeys = await getApiKeys()
+      setApiKeys(apikeys)
+
+      return apikeys
+    }
+  }
+
   return (
     <ChatbotUIContext.Provider
       value={{
         // PROFILE STORE
         profile,
         setProfile,
+
+        // USER STORE
+        userInfo,
+        setUserInfo,
+        members,
+        setMembers,
+
+        // API KEYS STORE
+        apikeys,
+        setApiKeys,
 
         // ITEMS STORE
         assistants,

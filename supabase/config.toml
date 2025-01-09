@@ -109,6 +109,12 @@ redirect_uri = ""
 # or any other third-party OIDC providers.
 url = ""
 
+# Allow sign in via Amazon Cognito.
+[auth.third_party.aws_cognito]
+enabled = true
+user_pool_id = "<id>"
+user_pool_region = "<region>"
+
 [analytics]
 enabled = false
 port = 54327
