@@ -6,11 +6,12 @@ import { useTheme } from "next-themes"
 import Link from "next/link"
 import { SSOAuthButton } from "@/components/sso/sso_login"
 import { toast } from "sonner"
-// import {
-//   TablerIconsProps,
-//   IconArrowRight,
-//   IconBrandGithub,
-// } from "@tabler/icons-react"
+import {
+  TablerIconsProps,
+  IconArrowRight,
+  IconBrandAzure,
+  IconBrandGithub
+} from "@tabler/icons-react"
 
 export default function HomePage({
   searchParams
@@ -47,6 +48,7 @@ export default function HomePage({
         providerName="Github"
         providerId="github"
         callbackUrl="http://localhost:3000/auth/callback_sso"
+        brandIcon={<IconBrandGithub />}
       />
 
       {/* {searchParams?.message && (

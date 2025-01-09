@@ -1,21 +1,22 @@
 "use client"
 
-import { FC } from "react"
+import { ReactNode, FC } from "react"
 import { Button } from "../ui/button"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 import { Provider } from "@supabase/auth-js"
-import { IconBrandGithub } from "@tabler/icons-react"
 
 interface SSOAuthButtonProp {
   providerName: string
   providerId: Provider
   callbackUrl: string
+  brandIcon: ReactNode
 }
 
 export const SSOAuthButton: FC<SSOAuthButtonProp> = ({
   providerName,
   providerId,
-  callbackUrl
+  callbackUrl,
+  brandIcon
 }) => {
   // Supabaseクライアント作成
   const supabase = createClientComponentClient()
@@ -38,7 +39,7 @@ export const SSOAuthButton: FC<SSOAuthButtonProp> = ({
         className="border-foreground/20 m-2 w-[300px] rounded-md border bg-blue-500 text-white"
       >
         <div className="flex justify-center">
-          <IconBrandGithub />
+          {brandIcon}
           <span className="ml-2">Login with {providerName}</span>
         </div>
       </Button>

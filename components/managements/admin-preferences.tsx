@@ -244,21 +244,17 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
       is_admin: checked
     })
 
-    const updatedUsers = await getUsers()
-    setMembers(updatedUsers)
+    setMembers(await filterUsers(searchStr, activeUserOnly))
 
     toast.success("Administrator privileges updated!")
   }
 
   const handleUserActivation = async (userId: string, isDeleted: boolean) => {
-    console.log(userId)
-    console.log(isDeleted)
     await updateUserInfo(userId, {
       is_deleted: !isDeleted
     })
 
-    const updatedUsers = await getUsers()
-    setMembers(updatedUsers)
+    setMembers(await filterUsers(searchStr, activeUserOnly))
 
     toast.success("User activity updated!")
   }
@@ -663,7 +659,7 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
                         {member.id === profile.user_id ? (
                           <WithTooltip
                             display={
-                              <div>Can NOT change my own admin privileges</div>
+                              <div>{`Can't change my own admin privileges`}</div>
                             }
                             trigger={
                               <Checkbox
@@ -701,7 +697,7 @@ export const AdminPreferences: FC<AdminPreferencesProps> = ({}) => {
                           {member.id === profile.user_id ? (
                             <WithTooltip
                               display={
-                                <div>Can NOT deactivate my own account</div>
+                                <div>{`Can't deactivate my own account`}</div>
                               }
                               trigger={
                                 <Button
